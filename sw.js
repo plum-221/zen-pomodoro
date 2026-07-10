@@ -1,5 +1,5 @@
 // sw.js — 极简离线缓存，让 PWA 装好后没网也能打开。
-const CACHE = "zen-pomodoro-v7";
+const CACHE = "zen-pomodoro-v8";
 const ASSETS = [
   "./", "./index.html", "./styles.css", "./app.js", "./plant.js",
   "./manifest.json", "./icon.svg",

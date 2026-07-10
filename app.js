@@ -61,6 +61,7 @@
     document.querySelectorAll(".modes button").forEach((b) =>
       b.classList.toggle("active", b.dataset.mode === m));
     $("modeLabel").textContent = MODE_LABEL[m];
+    updateDurLabel();
     const ring = $("ring");
     ring.style.stroke = m === "focus" ? "var(--ring-focus)" : "var(--ring-break)";
     if (resetTimer) { running = false; remainingMs = durationMs(m); endAt = 0; }
@@ -91,6 +92,15 @@
   }
 
   function skip() { complete(true); }
+
+  function updateDurLabel() { $("durLabel").textContent = (state.settings[mode] || 0) + " 分钟"; }
+  function adjustDuration(delta) {
+    const max = mode === "focus" ? 120 : 60;
+    state.settings[mode] = clamp((state.settings[mode] || 25) + delta, 1, max);
+    save();
+    resetTimer();            // 停止并按新时长重置，方便快速测试
+    updateDurLabel();
+  }
 
   function complete(skipped) {
     running = false;
@@ -155,6 +165,10 @@
     $("time").textContent = String(mm).padStart(2, "0") + ":" + String(ss).padStart(2, "0");
     const frac = total > 0 ? rem / total : 0;
     $("ring").style.strokeDashoffset = RING_LEN * (1 - frac);
+    // 环前端的小光点：贴在进度弧的消退处，随时间往回走（内圆在 0,0，靠整组平移定位）
+    const a = frac * 2 * Math.PI;
+    const dx = 100 + 90 * Math.cos(a), dy = 100 + 90 * Math.sin(a);
+    $("dotG").setAttribute("transform", `translate(${dx},${dy})`);
     $("startBtn").textContent = running ? "暂停" : (remainingMs < total && remainingMs > 0 ? "继续" : "开始");
     $("pomoCount").textContent = state.pomoCount;
     if (document.title.indexOf("·") > -1 || running) {
@@ -332,6 +346,7 @@
     if (state.settings.notify) ensureNotifyPermission();
     save();
     $("settingsModal").classList.remove("show");
+    updateDurLabel();
     if (!running) resetTimer(); else render();
     toast("设置已保存");
   }
@@ -366,6 +381,8 @@
   $("startBtn").onclick = startPause;
   $("resetBtn").onclick = resetTimer;
   $("skipBtn").onclick = skip;
+  $("minusBtn").onclick = () => adjustDuration(-1);
+  $("plusBtn").onclick = () => adjustDuration(1);
   document.querySelectorAll(".modes button").forEach((b) =>
     b.onclick = () => { setMode(b.dataset.mode); persistSession(); });
   $("addTask").onclick = addTask;

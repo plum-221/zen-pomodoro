@@ -93,7 +93,9 @@ body {
 .ring-box { position: relative; width: min(280px, 70vw); aspect-ratio: 1; }
 .ring-box svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .ring-box .track { fill: none; stroke: var(--ring-track); stroke-width: 10; }
-.ring-box .prog { fill: none; stroke: var(--ring-focus); stroke-width: 10; stroke-linecap: round; transition: stroke .4s; }
+.ring-box .prog { fill: none; stroke: var(--ring-focus); stroke-width: 10; stroke-linecap: round; transition: stroke .4s, stroke-dashoffset .25s linear; }
+.ring-box .dot { fill: #fff; stroke: var(--ring-focus); stroke-width: 3; filter: drop-shadow(0 0 5px var(--ring-focus)); transition: stroke .4s; }
+#dotG { transition: transform .25s linear; }
 .ring-center {
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 4px;
@@ -101,7 +103,15 @@ body {
 .time { font-size: 54px; font-weight: 300; letter-spacing: 2px; color: var(--ink); font-variant-numeric: tabular-nums; }
 .mode-label { font-size: 13px; letter-spacing: 3px; color: var(--sub); }
 
-.controls { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+.adjust { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+.adjust #durLabel { font-size: 14px; color: var(--sub); min-width: 62px; text-align: center; letter-spacing: 1px; }
+.step {
+  border: none; cursor: pointer; width: 34px; height: 34px; border-radius: 50%;
+  font-size: 18px; line-height: 1; color: var(--ink-soft); background: var(--card);
+  box-shadow: 0 3px 10px rgba(90,120,90,.14); touch-action: manipulation;
+}
+.step:active { transform: scale(.92); }
+.controls { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
 .btn {
   border: none; cursor: pointer; font-family: inherit; font-size: 15px;
   padding: 11px 30px; border-radius: 999px; color: #fff;

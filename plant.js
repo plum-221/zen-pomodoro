@@ -16,7 +16,7 @@
   }
 
   const BASE_Y = 470;          // 土面
-  const MIN_H = 22;            // 萌芽时的最小高度
+  const MIN_H = 52;            // 萌芽时的最小高度（保证待机也看得见一小株）
   const MAX_H = 360;           // 完全长成的高度
 
   class Plant {
@@ -53,8 +53,8 @@
 
       // 叶子：f = 在当前茎上的位置（0 底 1 顶），appear = 开始冒出的生长值
       const leafDefs = [
-        { f: 0.22, side: -1, size: 0.55, appear: 0.0 },   // 子叶
-        { f: 0.30, side: 1, size: 0.55, appear: 0.02 },   // 子叶
+        { f: 0.34, side: -1, size: 0.75, appear: 0.0 },   // 子叶
+        { f: 0.5, side: 1, size: 0.75, appear: 0.02 },    // 子叶
         { f: 0.44, side: -1, size: 1.0, appear: 0.16 },
         { f: 0.58, side: 1, size: 1.1, appear: 0.32 },
         { f: 0.70, side: -1, size: 1.05, appear: 0.48 },

@@ -28,11 +28,17 @@
             <svg viewBox="0 0 200 200">
               <circle class="track" cx="100" cy="100" r="90"></circle>
               <circle class="prog" id="ring" cx="100" cy="100" r="90"></circle>
+              <g id="dotG" transform="translate(190,100)"><circle class="dot" r="7"></circle></g>
             </svg>
             <div class="ring-center">
               <div class="time" id="time">25:00</div>
               <div class="mode-label" id="modeLabel">专注时间</div>
             </div>
+          </div>
+          <div class="adjust">
+            <button class="step" id="minusBtn" title="减 1 分钟">−</button>
+            <span id="durLabel">25 分钟</span>
+            <button class="step" id="plusBtn" title="加 1 分钟">＋</button>
           </div>
           <div class="controls">
             <button class="btn" id="startBtn">开始</button>
