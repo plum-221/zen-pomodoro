@@ -4,6 +4,7 @@
 
   const KEY = "zenPomodoro.v1";
   const $ = (id) => document.getElementById(id);
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 
   // ---------- 状态 ----------
   const DEFAULTS = {
@@ -97,7 +98,6 @@
       state.pomoCount += 1;
       state.cycle += 1;
       state.plantGrowth = Math.min(1, state.pomoCount / PLANT_BLOOM_AT);
-      plant.setGrowth(state.plantGrowth);
       const t = activeTask();
       if (t) { t.completed = (t.completed || 0) + 1; t.total = (t.total || 0) + 1; renderTasks(); }
       notify("专注完成 🌱", "植物又长了一节，休息一下吧");
@@ -117,11 +117,24 @@
     render();
   }
 
+  // 植物生长 = 已完成番茄 + 当前专注进度，随计时连续、平滑生长
+  function livePlantGrowth() {
+    let g = state.pomoCount / PLANT_BLOOM_AT;
+    if (mode === "focus") {
+      const total = durationMs("focus");
+      const rem = running ? Math.max(0, endAt - Date.now()) : remainingMs;
+      const frac = clamp(1 - rem / total, 0, 1);   // 本番茄已过去的比例
+      g += frac / PLANT_BLOOM_AT;
+    }
+    return Math.min(1, g);
+  }
+
   function tick() {
     if (running) {
       remainingMs = endAt - Date.now();
       if (remainingMs <= 0) { remainingMs = 0; complete(false); }
     }
+    plant.setGrowth(livePlantGrowth());
     render();
   }
 
