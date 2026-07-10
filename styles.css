@@ -165,6 +165,20 @@ body {
 .field { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 14px; }
 .field input[type=number] { width: 70px; border: 1px solid var(--line); border-radius: 10px; padding: 8px; font-family: inherit; text-align: center; }
 .field input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); }
+/* 提示音选择 */
+.sound-pick { display: flex; gap: 8px; align-items: center; }
+.sound-pick select {
+  font-family: inherit; font-size: 14px; padding: 7px 10px; border-radius: 10px;
+  border: 1px solid var(--line); background: rgba(255,255,255,.8); color: var(--ink-soft);
+}
+.mini {
+  border: none; cursor: pointer; font-family: inherit; font-size: 13px; white-space: nowrap;
+  padding: 7px 12px; border-radius: 999px; color: #fff;
+  background: linear-gradient(135deg, var(--accent-soft), var(--accent));
+  box-shadow: 0 4px 10px rgba(92,154,74,.28);
+}
+.mini:active { transform: translateY(1px); }
+
 /* 配色主题选择 */
 .theme-field { display: block; margin-bottom: 16px; }
 .theme-field > span { display: block; font-size: 14px; margin-bottom: 10px; }

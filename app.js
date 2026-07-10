@@ -7,7 +7,7 @@
 
   // ---------- 状态 ----------
   const DEFAULTS = {
-    settings: { focus: 25, short: 5, long: 15, longEvery: 4, sound: true, notify: false, theme: "", customAccent: "" },
+    settings: { focus: 25, short: 5, long: 15, longEvery: 4, sound: true, soundName: "bell", notify: false, theme: "", customAccent: "" },
     tasks: [],
     activeTaskId: null,
     pomoCount: 0,       // 今日已完成番茄数
@@ -211,19 +211,37 @@
     if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
     if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
   }
+  // 一个音的通用发声器
+  function tone(ctx, t0, { f, f2, dur, peak = 0.18, type = "sine" }) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t0);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + dur);
+    o.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(peak, t0 + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.start(t0); o.stop(t0 + dur + 0.05);
+  }
+
+  // 全部现场合成，无需音频文件
+  const SOUNDS = {
+    bell(ctx, n) { [523.25, 659.25, 783.99].forEach((f, i) => tone(ctx, n + i * 0.08, { f, dur: 1.6, peak: 0.16 })); },
+    bowl(ctx, n) { [true, false].forEach((base) => tone(ctx, n, { f: base ? 220 : 440, dur: 2.6, peak: base ? 0.16 : 0.07 })); },
+    woodfish(ctx, n) { [0, 0.22].forEach((d) => tone(ctx, n + d, { f: 420, f2: 150, dur: 0.12, peak: 0.28, type: "triangle" })); },
+    windchime(ctx, n) { [1046, 1318, 1568, 2093, 1760].forEach((f, i) => tone(ctx, n + i * 0.11, { f, dur: 1.1, peak: 0.09 })); },
+    bird(ctx, n) { [0, 0.16].forEach((d) => tone(ctx, n + d, { f: 1900, f2: 2600, dur: 0.14, peak: 0.12 })); },
+    drop(ctx, n) { tone(ctx, n, { f: 900, f2: 200, dur: 0.35, peak: 0.22 }); },
+  };
+  const SOUND_LIST = [["bell", "钟磬"], ["bowl", "颂钵"], ["woodfish", "木鱼"], ["windchime", "风铃"], ["bird", "鸟鸣"], ["drop", "水滴"]];
+
+  function playSound(name) {
+    if (!audioCtx) return;
+    (SOUNDS[name] || SOUNDS.bell)(audioCtx, audioCtx.currentTime);
+  }
   function chime() {
-    if (!state.settings.sound || !audioCtx) return;
-    const now = audioCtx.currentTime;
-    [523.25, 659.25, 783.99].forEach((f, i) => {   // 一记柔和的和弦「钟磬」
-      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-      o.type = "sine"; o.frequency.value = f;
-      o.connect(g); g.connect(audioCtx.destination);
-      const t0 = now + i * 0.08;
-      g.gain.setValueAtTime(0, t0);
-      g.gain.linearRampToValueAtTime(0.18, t0 + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.6);
-      o.start(t0); o.stop(t0 + 1.7);
-    });
+    if (!state.settings.sound) return;
+    unlockAudio();
+    playSound(state.settings.soundName || "bell");
   }
   function ensureNotifyPermission() {
     if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
@@ -285,6 +303,7 @@
     $("cfgLong").value = state.settings.long;
     $("cfgEvery").value = state.settings.longEvery;
     $("cfgSound").checked = state.settings.sound;
+    $("cfgSoundName").value = state.settings.soundName || "bell";
     $("cfgNotify").checked = state.settings.notify;
     $("settingsModal").classList.add("show");
   }
@@ -295,6 +314,7 @@
     state.settings.long = clampNum($("cfgLong").value, 1, 60, 15);
     state.settings.longEvery = clampNum($("cfgEvery").value, 2, 10, 4);
     state.settings.sound = $("cfgSound").checked;
+    state.settings.soundName = $("cfgSoundName").value;
     state.settings.notify = $("cfgNotify").checked;
     if (state.settings.notify) ensureNotifyPermission();
     save();
@@ -341,6 +361,8 @@
   document.querySelectorAll("#themeSwatches .sw[data-theme]").forEach((b) =>
     b.onclick = () => pickTheme(b.dataset.theme || ""));
   $("customAccent").oninput = (e) => pickCustom(e.target.value);
+  $("previewSound").onclick = () => { unlockAudio(); playSound($("cfgSoundName").value); };
+  $("cfgSoundName").onchange = () => { unlockAudio(); playSound($("cfgSoundName").value); };
   $("cfgSave").onclick = saveSettings;
   $("cfgCancel").onclick = () => $("settingsModal").classList.remove("show");
   $("settingsModal").onclick = (e) => { if (e.target.id === "settingsModal") $("settingsModal").classList.remove("show"); };

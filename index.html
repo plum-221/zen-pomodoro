@@ -87,6 +87,20 @@
       <div class="field"><span>长休时长（分钟）</span><input type="number" id="cfgLong" min="1" max="60"></div>
       <div class="field"><span>几个番茄后长休</span><input type="number" id="cfgEvery" min="2" max="10"></div>
       <div class="field"><span>到点声音提示</span><input type="checkbox" id="cfgSound"></div>
+      <div class="field">
+        <span>提示音</span>
+        <span class="sound-pick">
+          <select id="cfgSoundName">
+            <option value="bell">钟磬</option>
+            <option value="bowl">颂钵</option>
+            <option value="woodfish">木鱼</option>
+            <option value="windchime">风铃</option>
+            <option value="bird">鸟鸣</option>
+            <option value="drop">水滴</option>
+          </select>
+          <button type="button" class="mini" id="previewSound">▶ 试听</button>
+        </span>
+      </div>
       <div class="field"><span>系统通知提醒</span><input type="checkbox" id="cfgNotify"></div>
       <div class="modal-ops">
         <button class="btn ghost" id="cfgCancel">取消</button>
