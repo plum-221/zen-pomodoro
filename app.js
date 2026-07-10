@@ -8,7 +8,7 @@
 
   // ---------- 状态 ----------
   const DEFAULTS = {
-    settings: { focus: 25, short: 5, long: 15, longEvery: 4, sound: true, soundName: "bell", notify: false, theme: "", customAccent: "" },
+    settings: { focus: 25, short: 5, long: 15, longEvery: 4, sound: true, soundName: "bell", vibrate: false, notify: false, theme: "", customAccent: "" },
     tasks: [],
     activeTaskId: null,
     pomoCount: 0,       // 今日已完成番茄数
@@ -273,8 +273,14 @@
   function ensureNotifyPermission() {
     if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
   }
+  function buzz() {
+    if (state.settings.vibrate && "vibrate" in navigator) {
+      try { navigator.vibrate([120, 60, 120]); } catch (e) {}
+    }
+  }
   function notify(title, body) {
     toast(title);
+    buzz();
     if (state.settings.notify && "Notification" in window && Notification.permission === "granted") {
       try { new Notification(title, { body, silent: true }); } catch (e) {}
     }
@@ -331,6 +337,7 @@
     $("cfgEvery").value = state.settings.longEvery;
     $("cfgSound").checked = state.settings.sound;
     $("cfgSoundName").value = state.settings.soundName || "bell";
+    $("cfgVibrate").checked = state.settings.vibrate;
     $("cfgNotify").checked = state.settings.notify;
     $("settingsModal").classList.add("show");
   }
@@ -342,6 +349,7 @@
     state.settings.longEvery = clampNum($("cfgEvery").value, 2, 10, 4);
     state.settings.sound = $("cfgSound").checked;
     state.settings.soundName = $("cfgSoundName").value;
+    state.settings.vibrate = $("cfgVibrate").checked;
     state.settings.notify = $("cfgNotify").checked;
     if (state.settings.notify) ensureNotifyPermission();
     save();
@@ -393,6 +401,10 @@
   $("customAccent").oninput = (e) => pickCustom(e.target.value);
   $("previewSound").onclick = () => { unlockAudio(); playSound($("cfgSoundName").value); };
   $("cfgSoundName").onchange = () => { unlockAudio(); playSound($("cfgSoundName").value); };
+  $("testVibrate").onclick = () => {
+    if ("vibrate" in navigator) { navigator.vibrate([120, 60, 120]); toast("已发送震动（手机才有效）"); }
+    else { toast("这台设备/浏览器不支持震动"); }
+  };
   $("cfgSave").onclick = saveSettings;
   $("cfgCancel").onclick = () => $("settingsModal").classList.remove("show");
   $("settingsModal").onclick = (e) => { if (e.target.id === "settingsModal") $("settingsModal").classList.remove("show"); };
