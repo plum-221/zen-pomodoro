@@ -1,12 +1,9 @@
-// plant.js — 可复用的 SVG 生长植物。纯原生，无依赖。
+// plant.js — 可复用的 SVG 生长植物。整株从很小一直往上延展、抽高、长大。
 // 用法：const plant = new Plant(svgElement); plant.setGrowth(0..1); plant.gust(); plant.wither();
 (function (global) {
   const NS = "http://www.w3.org/2000/svg";
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
-  const easeOutBack = (x) => {
-    const c1 = 1.70158, c3 = c1 + 1;
-    return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
-  };
+  const easeOut = (x) => 1 - Math.pow(1 - x, 2);
 
   const STAGES = [
     [0, "萌芽"], [0.15, "抽茎"], [0.35, "展叶"],
@@ -17,6 +14,10 @@
     for (const [th, name] of STAGES) if (g >= th) n = name;
     return n;
   }
+
+  const BASE_Y = 470;          // 土面
+  const MIN_H = 22;            // 萌芽时的最小高度
+  const MAX_H = 360;           // 完全长成的高度
 
   class Plant {
     constructor(svg) {
@@ -41,9 +42,7 @@
         <ellipse cx="200" cy="472" rx="150" ry="26" fill="url(#soilGrad)"/>
         <ellipse cx="200" cy="466" rx="120" ry="16" fill="var(--soil-a)" opacity=".55"/>
         <g id="plantGroup">
-          <path id="stemPath" d="M200,470 C 194,395 212,330 200,262 C 190,205 208,150 200,86"
-                fill="none" stroke="url(#stemGrad)" stroke-width="7"
-                stroke-linecap="round" pathLength="1"/>
+          <path id="stemPath" fill="none" stroke="url(#stemGrad)" stroke-linecap="round"/>
           <g id="leavesG"></g>
           <g id="flowerG"></g>
         </g>`;
@@ -51,15 +50,16 @@
       this.stem = svg.querySelector("#stemPath");
       this.leavesG = svg.querySelector("#leavesG");
       this.flowerG = svg.querySelector("#flowerG");
-      this.L = this.stem.getTotalLength();
-      this.stem.style.strokeDasharray = this.L;
 
+      // 叶子：f = 在当前茎上的位置（0 底 1 顶），appear = 开始冒出的生长值
       const leafDefs = [
-        // 两片子叶：一开始就有，构成可见的“小萌芽”
-        { t: 0.028, side: -1, size: 0.5 }, { t: 0.05, side: 1, size: 0.5 },
-        { t: 0.20, side: -1, size: 1.0 }, { t: 0.34, side: 1, size: 1.1 },
-        { t: 0.48, side: -1, size: 1.15 }, { t: 0.60, side: 1, size: 1.05 },
-        { t: 0.72, side: -1, size: 0.9 }, { t: 0.82, side: 1, size: 0.8 },
+        { f: 0.22, side: -1, size: 0.55, appear: 0.0 },   // 子叶
+        { f: 0.30, side: 1, size: 0.55, appear: 0.02 },   // 子叶
+        { f: 0.44, side: -1, size: 1.0, appear: 0.16 },
+        { f: 0.58, side: 1, size: 1.1, appear: 0.32 },
+        { f: 0.70, side: -1, size: 1.05, appear: 0.48 },
+        { f: 0.82, side: 1, size: 0.9, appear: 0.64 },
+        { f: 0.90, side: -1, size: 0.75, appear: 0.78 },
       ];
       this.leaves = leafDefs.map((d, i) => {
         const g = document.createElementNS(NS, "g");
@@ -89,13 +89,10 @@
       this.core.setAttribute("fill", "var(--petal-core)");
       this.flowerG.appendChild(this.core);
 
-      this.growth = 0;      // 当前显示的生长值
-      this.target = 0;      // 目标生长值（平滑过渡）
-      this.wa = 0; this.wv = 0;   // 风力弹簧
-      this.wilt = 0;              // 蔫萎程度 0..1
+      this.growth = 0; this.target = 0;
+      this.wa = 0; this.wv = 0; this.wilt = 0;
       this.last = performance.now();
-      this.onStage = null;        // 阶段变化回调
-      this._stage = "";
+      this.onStage = null; this._stage = "";
       this._loop = this._loop.bind(this);
       requestAnimationFrame(this._loop);
     }
@@ -105,49 +102,61 @@
     wither() { this.wilt = 1; this.gust(); }
     stageName() { return stageName(this.growth); }
 
+    _stemPath(H, bend) {
+      const tipY = BASE_Y - H;
+      return `M200,${BASE_Y} C ${200 - bend},${BASE_Y - H * 0.4} ${200 + bend},${BASE_Y - H * 0.75} 200,${tipY}`;
+    }
+
     _loop(now) {
       const dt = Math.min(0.05, (now - this.last) / 1000);
       this.last = now;
 
       this.growth += (this.target - this.growth) * Math.min(1, dt * 2.2);
       this.wilt += (0 - this.wilt) * Math.min(1, dt * 0.8);
+      const g = this.growth;
 
       const breeze = Math.sin(now / 1300) * 0.05 + Math.sin(now / 430) * 0.015;
       this.wv += (-(this.wa - breeze) * 11 - this.wv * 3.4) * dt;
       this.wa += this.wv * dt;
 
-      // shown：即使 growth=0，也保留极短一截茎，让萌芽一直可见（别太高）
-      const shown = 0.05 + 0.95 * this.growth;
+      // 整株的高度随生长真实往上延展
+      const H = MIN_H + easeOut(g) * (MAX_H - MIN_H);
+      const bend = 12 * (0.4 + 0.6 * g);
+      this.stem.setAttribute("d", this._stemPath(H, bend + this.wilt * 6));
+      this.stem.setAttribute("stroke-width", 3 + g * 4.5);
+      const L = this.stem.getTotalLength();
 
       this.plant.setAttribute("transform",
-        `rotate(${this.wa * 46 + this.wilt * 4} 200 470)`);
-      this.stem.style.strokeDashoffset = this.L * (1 - shown);
+        `rotate(${this.wa * 46 + this.wilt * 4} 200 ${BASE_Y})`);
 
+      // 叶子跟着整株一起平滑长大，位置随茎往上移
+      const overall = 0.5 + easeOut(g) * 0.8;
       for (const lf of this.leaves) {
-        const unf = clamp((shown - lf.t) / 0.14, 0, 1);
-        if (unf <= 0) { lf.g.style.display = "none"; continue; }
+        const appear = clamp((g - lf.appear) / 0.2, 0, 1);
+        if (appear <= 0) { lf.g.style.display = "none"; continue; }
         lf.g.style.display = "";
-        const pt = this.stem.getPointAtLength(clamp(lf.t, 0, 1) * this.L);
-        const s = easeOutBack(unf) * lf.size * (1 - 0.22 * this.wilt);
-        const base = lf.side * 52 + lf.side * 16 * this.wilt;
-        const sway = this.wa * 70 * (0.4 + lf.t) + Math.sin(now / 650 + lf.phase) * 3.2 * unf;
+        const pt = this.stem.getPointAtLength(clamp(lf.f, 0, 1) * L);
+        const s = easeOut(appear) * lf.size * overall * (1 - 0.22 * this.wilt);
+        const base = lf.side * 50 + lf.side * 16 * this.wilt;
+        const sway = this.wa * 70 * (0.4 + lf.f) + Math.sin(now / 650 + lf.phase) * 3.2 * appear;
         lf.g.setAttribute("transform",
           `translate(${pt.x},${pt.y}) rotate(${base + sway}) scale(${lf.side * Math.abs(s)},${Math.abs(s)})`);
       }
 
-      const bloom = clamp((shown - 0.9) / 0.1, 0, 1);
+      // 顶端开花
+      const bloom = clamp((g - 0.82) / 0.18, 0, 1);
       if (bloom <= 0) { this.flowerG.style.display = "none"; }
       else {
         this.flowerG.style.display = "";
-        const tip = this.stem.getPointAtLength(0.995 * this.L);
-        const s = easeOutBack(bloom) * (1 - 0.15 * this.wilt);
+        const tip = this.stem.getPointAtLength(0.995 * L);
+        const s = easeOut(bloom) * overall * (1 - 0.15 * this.wilt);
         const spin = Math.sin(now / 1400) * 4 + this.wa * 30;
         this.flowerG.setAttribute("transform",
           `translate(${tip.x},${tip.y}) rotate(${spin}) scale(${s})`);
         this.core.setAttribute("r", 6 * s);
       }
 
-      const st = stageName(this.growth);
+      const st = stageName(g);
       if (st !== this._stage) { this._stage = st; if (this.onStage) this.onStage(st); }
 
       requestAnimationFrame(this._loop);
