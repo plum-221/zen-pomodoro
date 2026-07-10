@@ -1,0 +1,169 @@
+/* 禅意番茄钟 · 自然禅（绿）。换风格只改这一段 :root 变量即可。 */
+:root {
+  --bg1: #eef3ea;
+  --bg2: #dce7d8;
+  --card: rgba(255, 255, 255, 0.55);
+  --card-solid: #ffffff;
+  --ink: #3f5a48;
+  --ink-soft: #4a6350;
+  --sub: #8a9a86;
+  --line: #d5e0d0;
+  --accent: #5c9a4a;
+  --accent-soft: #7cb35f;
+  --ring-track: #dbe7d8;
+  --ring-focus: #5c9a4a;
+  --ring-break: #6fb0c4;
+  --shadow: 0 20px 50px rgba(90, 120, 90, 0.16);
+
+  /* 植物用色 */
+  --stem-a: #7a5a3a; --stem-b: #5f8a4e;
+  --leaf-a: #8fbf6e; --leaf-b: #5c9a4a;
+  --petal: #f6e8ef; --petal-core: #e8b3c8;
+  --soil-a: #c2d0b8; --soil-b: #b3c3a8;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: radial-gradient(140% 120% at 50% -10%, var(--bg1), var(--bg2));
+  color: var(--ink-soft);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app { max-width: 1040px; margin: 0 auto; padding: 28px 18px 48px; }
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+.brand { font-size: 20px; font-weight: 600; letter-spacing: 4px; color: var(--ink); }
+.brand small { display: block; font-size: 11px; letter-spacing: 2px; color: var(--sub); font-weight: 400; margin-top: 2px; }
+.iconbtn {
+  border: none; background: var(--card); color: var(--ink-soft);
+  width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+  font-size: 18px; box-shadow: 0 4px 12px rgba(90, 120, 90, 0.12);
+  transition: transform .12s;
+}
+.iconbtn:active { transform: scale(.94); }
+
+.layout { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; align-items: start; }
+.col { display: flex; flex-direction: column; gap: 20px; }
+.card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .6), var(--card));
+  border-radius: 22px; box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 255, 255, .6);
+  padding: 22px;
+}
+
+/* 模式切换 */
+.modes { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; }
+.modes button {
+  border: none; cursor: pointer; font-family: inherit; font-size: 13px;
+  padding: 7px 16px; border-radius: 999px; color: var(--sub);
+  background: transparent; transition: all .15s; letter-spacing: 1px;
+}
+.modes button.active { background: var(--accent); color: #fff; box-shadow: 0 6px 14px rgba(92, 154, 74, .3); }
+
+/* 计时器圆环 */
+.timer-wrap { display: flex; flex-direction: column; align-items: center; }
+.ring-box { position: relative; width: min(280px, 70vw); aspect-ratio: 1; }
+.ring-box svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-box .track { fill: none; stroke: var(--ring-track); stroke-width: 10; }
+.ring-box .prog { fill: none; stroke: var(--ring-focus); stroke-width: 10; stroke-linecap: round; transition: stroke .4s; }
+.ring-center {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+}
+.time { font-size: 54px; font-weight: 300; letter-spacing: 2px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.mode-label { font-size: 13px; letter-spacing: 3px; color: var(--sub); }
+
+.controls { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+.btn {
+  border: none; cursor: pointer; font-family: inherit; font-size: 15px;
+  padding: 11px 30px; border-radius: 999px; color: #fff;
+  background: linear-gradient(135deg, var(--accent-soft), var(--accent));
+  box-shadow: 0 8px 18px rgba(92, 154, 74, .32); transition: transform .12s, opacity .12s;
+}
+.btn:active { transform: translateY(1px) scale(.98); }
+.btn.ghost { background: var(--card); color: var(--ink-soft); box-shadow: 0 4px 12px rgba(90, 120, 90, .14); }
+.btn, .iconbtn, .modes button, .add-btn { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+/* 植物卡 */
+.plant-card { text-align: center; }
+.plant-svg { width: 100%; height: 300px; }
+.plant-meta { display: flex; justify-content: center; gap: 18px; color: var(--sub); font-size: 13px; margin-top: 6px; }
+.plant-meta b { color: var(--accent); }
+
+/* 任务 */
+.task-head { display: flex; gap: 8px; margin-bottom: 14px; }
+.task-head input {
+  flex: 1; border: 1px solid var(--line); background: rgba(255,255,255,.7);
+  border-radius: 12px; padding: 10px 12px; font-family: inherit; font-size: 14px; color: var(--ink-soft);
+}
+.task-head input:focus { outline: none; border-color: var(--accent-soft); }
+.est-input { width: 58px !important; flex: none !important; text-align: center; }
+.add-btn { border: none; background: var(--accent); color: #fff; border-radius: 12px; padding: 0 16px; cursor: pointer; font-size: 20px; }
+
+.tasks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.task {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  background: rgba(255, 255, 255, .5); border-radius: 12px; border: 1px solid transparent;
+  transition: border-color .15s;
+}
+.task.active { border-color: var(--accent-soft); background: rgba(124, 179, 95, .12); }
+.task.done .name { text-decoration: line-through; color: var(--sub); }
+.task .check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; flex: none; }
+.task.done .check { background: var(--accent); border-color: var(--accent); }
+.task .name { flex: 1; font-size: 14px; cursor: pointer; word-break: break-all; }
+.task .pomo { font-size: 12px; color: var(--sub); white-space: nowrap; }
+.task .ops { display: flex; gap: 2px; }
+.task .ops button { border: none; background: transparent; cursor: pointer; color: var(--sub); font-size: 14px; padding: 2px 4px; border-radius: 6px; }
+.task .ops button:hover { background: rgba(0,0,0,.05); color: var(--ink); }
+.empty { color: var(--sub); font-size: 13px; text-align: center; padding: 18px; }
+
+/* 提示条 */
+.toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: #fff; padding: 12px 22px; border-radius: 999px;
+  font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.2); opacity: 0; pointer-events: none;
+  transition: opacity .25s, transform .25s; z-index: 50;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* 设置弹层 */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(60, 80, 60, .35); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center; z-index: 60; padding: 16px;
+}
+.modal-bg.show { display: flex; }
+.modal { background: var(--card-solid); border-radius: 20px; padding: 24px; width: min(360px, 92vw); box-shadow: var(--shadow); }
+.modal h3 { margin: 0 0 16px; color: var(--ink); letter-spacing: 2px; }
+.field { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 14px; }
+.field input[type=number] { width: 70px; border: 1px solid var(--line); border-radius: 10px; padding: 8px; font-family: inherit; text-align: center; }
+.field input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); }
+.modal-ops { display: flex; gap: 10px; margin-top: 20px; }
+.modal-ops .btn { flex: 1; padding: 10px; }
+
+/* 响应式：手机单列，计时器在上，任务在下 */
+@media (max-width: 760px) {
+  .app { padding: 20px 14px 40px; }
+  .layout { grid-template-columns: 1fr; gap: 16px; }
+  .card { padding: 18px; border-radius: 20px; }
+  .time { font-size: 46px; }
+  .plant-svg { height: 230px; }
+  /* 按钮自动换行、变窄，避免窄屏挤出边界 */
+  .controls { gap: 10px; flex-wrap: wrap; }
+  .controls .btn { flex: 1 1 auto; min-width: 92px; padding: 12px 16px; text-align: center; }
+}
+
+/* 超窄屏（小手机）再收一档 */
+@media (max-width: 380px) {
+  .brand { font-size: 18px; letter-spacing: 2px; }
+  .time { font-size: 40px; }
+  .ring-box { width: min(240px, 74vw); }
+  .task-head input { font-size: 13px; padding: 9px 10px; }
+  .task .pomo { font-size: 11px; }
+}
+
+/* 触屏没有 hover，避免按住残留高亮 */
+@media (hover: none) {
+  .task .ops button:hover { background: transparent; color: var(--sub); }
+}

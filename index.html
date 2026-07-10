@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#dce7d8">
+  <title>禅 · 番茄钟</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">禅 · 番茄钟<small>ZEN POMODORO</small></div>
+      <button class="iconbtn" id="settingsBtn" title="设置">⚙</button>
+    </div>
+
+    <div class="layout">
+      <!-- 左列：计时器 + 植物 -->
+      <div class="col">
+        <div class="card timer-wrap">
+          <div class="modes">
+            <button data-mode="focus" class="active">专注</button>
+            <button data-mode="short">短休</button>
+            <button data-mode="long">长休</button>
+          </div>
+          <div class="ring-box">
+            <svg viewBox="0 0 200 200">
+              <circle class="track" cx="100" cy="100" r="90"></circle>
+              <circle class="prog" id="ring" cx="100" cy="100" r="90"></circle>
+            </svg>
+            <div class="ring-center">
+              <div class="time" id="time">25:00</div>
+              <div class="mode-label" id="modeLabel">专注时间</div>
+            </div>
+          </div>
+          <div class="controls">
+            <button class="btn" id="startBtn">开始</button>
+            <button class="btn ghost" id="resetBtn">重置</button>
+            <button class="btn ghost" id="skipBtn">跳过</button>
+          </div>
+        </div>
+
+        <div class="card plant-card">
+          <svg class="plant-svg" id="plant"></svg>
+          <div class="plant-meta">
+            <span>今日专注 <b id="pomoCount">0</b> 个</span>
+            <span>植物：<b id="stageName">萌芽</b></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右列：任务 -->
+      <div class="col">
+        <div class="card">
+          <div class="task-head">
+            <input id="taskName" placeholder="＋ 新任务，比如：读书 20 页">
+            <input id="taskEst" class="est-input" type="number" min="1" max="20" value="1" title="预计番茄数">
+            <button class="add-btn" id="addTask">＋</button>
+          </div>
+          <ul class="tasks" id="taskList"></ul>
+          <div class="empty" id="emptyHint">还没有任务，先添一个吧 🌿</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- 设置 -->
+  <div class="modal-bg" id="settingsModal">
+    <div class="modal">
+      <h3>设置</h3>
+      <div class="field"><span>专注时长（分钟）</span><input type="number" id="cfgFocus" min="1" max="120"></div>
+      <div class="field"><span>短休时长（分钟）</span><input type="number" id="cfgShort" min="1" max="60"></div>
+      <div class="field"><span>长休时长（分钟）</span><input type="number" id="cfgLong" min="1" max="60"></div>
+      <div class="field"><span>几个番茄后长休</span><input type="number" id="cfgEvery" min="2" max="10"></div>
+      <div class="field"><span>到点声音提示</span><input type="checkbox" id="cfgSound"></div>
+      <div class="field"><span>系统通知提醒</span><input type="checkbox" id="cfgNotify"></div>
+      <div class="modal-ops">
+        <button class="btn ghost" id="cfgCancel">取消</button>
+        <button class="btn" id="cfgSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="plant.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
