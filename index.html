@@ -71,6 +71,17 @@
   <div class="modal-bg" id="settingsModal">
     <div class="modal">
       <h3>设置</h3>
+      <div class="theme-field">
+        <span>配色主题</span>
+        <div class="themes" id="themeSwatches">
+          <button class="sw" data-theme="" title="自然禅" style="background:linear-gradient(135deg,#7cb35f,#5c9a4a)"></button>
+          <button class="sw" data-theme="ink" title="水墨" style="background:linear-gradient(135deg,#e6e1d3,#3d3d38)"></button>
+          <button class="sw" data-theme="wabi" title="侘寂" style="background:linear-gradient(135deg,#ddcfba,#a1794f)"></button>
+          <button class="sw" data-theme="morandi" title="莫兰迪" style="background:linear-gradient(135deg,#cac4bb,#8f8478)"></button>
+          <button class="sw" data-theme="jade" title="青玉" style="background:linear-gradient(135deg,#d8e6de,#2f8b6a)"></button>
+          <label class="sw custom" title="自定义主色"><input type="color" id="customAccent" value="#5c9a4a"></label>
+        </div>
+      </div>
       <div class="field"><span>专注时长（分钟）</span><input type="number" id="cfgFocus" min="1" max="120"></div>
       <div class="field"><span>短休时长（分钟）</span><input type="number" id="cfgShort" min="1" max="60"></div>
       <div class="field"><span>长休时长（分钟）</span><input type="number" id="cfgLong" min="1" max="60"></div>

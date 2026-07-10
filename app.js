@@ -7,7 +7,7 @@
 
   // ---------- 状态 ----------
   const DEFAULTS = {
-    settings: { focus: 25, short: 5, long: 15, longEvery: 4, sound: true, notify: false },
+    settings: { focus: 25, short: 5, long: 15, longEvery: 4, sound: true, notify: false, theme: "", customAccent: "" },
     tasks: [],
     activeTaskId: null,
     pomoCount: 0,       // 今日已完成番茄数
@@ -242,8 +242,44 @@
     toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
   }
 
+  // ---------- 配色主题 ----------
+  function applyThemeAll() {
+    const t = state.settings.theme || "";
+    if (t) document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    applyCustomAccent(state.settings.customAccent || "");
+    markSwatches();
+  }
+  function applyCustomAccent(color) {
+    const s = document.documentElement.style;
+    if (color) {
+      s.setProperty("--accent", color);
+      s.setProperty("--accent-soft", `color-mix(in srgb, ${color}, #fff 22%)`);
+      s.setProperty("--ring-focus", color);
+    } else {
+      s.removeProperty("--accent"); s.removeProperty("--accent-soft"); s.removeProperty("--ring-focus");
+    }
+  }
+  function markSwatches() {
+    document.querySelectorAll("#themeSwatches .sw[data-theme]").forEach((b) =>
+      b.classList.toggle("selected",
+        !state.settings.customAccent && (b.dataset.theme || "") === (state.settings.theme || "")));
+    const cs = document.querySelector(".sw.custom");
+    if (cs) cs.classList.toggle("selected", !!state.settings.customAccent);
+  }
+  function pickTheme(name) {
+    state.settings.theme = name; state.settings.customAccent = "";
+    applyThemeAll(); save();
+  }
+  function pickCustom(color) {
+    state.settings.customAccent = color;
+    applyCustomAccent(color); markSwatches(); save();
+  }
+
   // ---------- 设置 ----------
   function openSettings() {
+    markSwatches();
+    if (state.settings.customAccent) $("customAccent").value = state.settings.customAccent;
     $("cfgFocus").value = state.settings.focus;
     $("cfgShort").value = state.settings.short;
     $("cfgLong").value = state.settings.long;
@@ -302,10 +338,14 @@
   $("addTask").onclick = addTask;
   $("taskName").addEventListener("keydown", (e) => { if (e.key === "Enter") addTask(); });
   $("settingsBtn").onclick = openSettings;
+  document.querySelectorAll("#themeSwatches .sw[data-theme]").forEach((b) =>
+    b.onclick = () => pickTheme(b.dataset.theme || ""));
+  $("customAccent").oninput = (e) => pickCustom(e.target.value);
   $("cfgSave").onclick = saveSettings;
   $("cfgCancel").onclick = () => $("settingsModal").classList.remove("show");
   $("settingsModal").onclick = (e) => { if (e.target.id === "settingsModal") $("settingsModal").classList.remove("show"); };
 
+  applyThemeAll();
   restore();
   setInterval(tick, 250);
 

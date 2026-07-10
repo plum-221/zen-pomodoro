@@ -22,6 +22,32 @@
   --soil-a: #c2d0b8; --soil-b: #b3c3a8;
 }
 
+/* 预设主题：给 <html> 加 data-theme 即整体换肤 */
+html[data-theme="ink"] {
+  --bg1:#f4f1e9; --bg2:#e6e1d3; --ink:#2b2b28; --ink-soft:#3d3d38; --sub:#9a9384; --line:#ddd6c6;
+  --accent:#5c574e; --accent-soft:#7a7469; --ring-track:#e0dac9; --ring-focus:#3d3d38; --ring-break:#9a9384;
+  --stem-a:#6b5a44; --stem-b:#5a6b4e; --leaf-a:#9aa17e; --leaf-b:#6f7a56;
+  --petal:#efe9dd; --petal-core:#c9b98f; --soil-a:#ded7c6; --soil-b:#cfc7b3;
+}
+html[data-theme="wabi"] {
+  --bg1:#ece2d3; --bg2:#ddcfba; --ink:#5a4a38; --ink-soft:#6b5842; --sub:#a1927d; --line:#d8c9b0;
+  --accent:#a1794f; --accent-soft:#bb9165; --ring-track:#d8c9b0; --ring-focus:#a1794f; --ring-break:#8a9a5b;
+  --stem-a:#7a5a3a; --stem-b:#6b7a45; --leaf-a:#a3aa6e; --leaf-b:#7d8a4a;
+  --petal:#f0e6d6; --petal-core:#d8a07a; --soil-a:#d8c9b0; --soil-b:#c8b89c;
+}
+html[data-theme="morandi"] {
+  --bg1:#dcd7cf; --bg2:#cac4bb; --ink:#514b46; --ink-soft:#5f5852; --sub:#9a938b; --line:#c8c1b8;
+  --accent:#8f8478; --accent-soft:#a89d90; --ring-track:#c8c1b8; --ring-focus:#8f8478; --ring-break:#8a94a0;
+  --stem-a:#7d6f5f; --stem-b:#7a8570; --leaf-a:#a7ad9a; --leaf-b:#828d76;
+  --petal:#e9e2da; --petal-core:#c9a9a0; --soil-a:#cec7bd; --soil-b:#beb6ab;
+}
+html[data-theme="jade"] {
+  --bg1:#eef3ee; --bg2:#d8e6de; --ink:#254f3d; --ink-soft:#2f6b52; --sub:#8aa79a; --line:#cfe0d4;
+  --accent:#2f8b6a; --accent-soft:#4aa583; --ring-track:#cfe0d4; --ring-focus:#2f8b6a; --ring-break:#c9a24a;
+  --stem-a:#6b5a3a; --stem-b:#3f8b5e; --leaf-a:#7fc79a; --leaf-b:#3f9a6a;
+  --petal:#f6eef2; --petal-core:#d98fb0; --soil-a:#cfe0d4; --soil-b:#bcd3c4;
+}
+
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
 body {
@@ -139,6 +165,20 @@ body {
 .field { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 14px; }
 .field input[type=number] { width: 70px; border: 1px solid var(--line); border-radius: 10px; padding: 8px; font-family: inherit; text-align: center; }
 .field input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); }
+/* 配色主题选择 */
+.theme-field { display: block; margin-bottom: 16px; }
+.theme-field > span { display: block; font-size: 14px; margin-bottom: 10px; }
+.themes { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.sw {
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer; padding: 0;
+  border: 2px solid transparent; box-shadow: 0 2px 6px rgba(0,0,0,.15); position: relative;
+}
+.sw.selected { border-color: var(--ink); }
+.sw.custom { overflow: hidden; display: flex; align-items: center; justify-content: center;
+  background: conic-gradient(from 0deg, #f66, #fd6, #6f6, #6ff, #66f, #f6f, #f66); }
+.sw.custom input { position: absolute; inset: -6px; width: 200%; height: 200%; border: none; padding: 0; cursor: pointer; opacity: 0; }
+.sw.custom::after { content: "✎"; color: #fff; font-size: 13px; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+
 .modal-ops { display: flex; gap: 10px; margin-top: 20px; }
 .modal-ops .btn { flex: 1; padding: 10px; }
 
